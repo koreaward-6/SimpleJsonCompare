@@ -1,0 +1,29 @@
+<idea-plugin>
+    <actions>
+        <group id="simpleJsonCompareGroup" text="Simple Json Compare">
+            <action class="kr.co.wincom.sjc.SimpleJsonCompare" id="simpleJsonCompareSub" text="Simple Json Compare"/>
+            <add-to-group anchor="last" group-id="ToolsMenu"/>
+        </group>
+    </actions>
+    <depends>com.intellij.modules.platform</depends>
+
+    <description><![CDATA[
+    <p>Intellij Plugin, which compares and displays Json data from Left URL and Right URL.</p>
+    <p>☞ Menu &gt; Tools &gt; Simple Json Compare</p>
+    <p>☞ Left URL ex) http://ip:port/path?parameter</p>
+    <p>☞ Right URL ex) http://ip:port or http://ip:port/path?parameter</p>
+    ]]></description>
+
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <idea-version since-build="202.6948.69"/>
+
+    <id>kr.co.wincom.sjc.SimpleJsonCompare</id>
+
+    <name>Simple Json Compare</name>
+
+    <vendor email="ward6@naver.com" url="https://github.com/koreaward-6/SimpleJsonCompare">BYKIM</vendor>
+</idea-plugin>

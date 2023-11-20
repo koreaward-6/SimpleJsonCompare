@@ -1,0 +1,29 @@
+plugins {
+    id 'org.jetbrains.intellij' version '1.10.2'
+    id 'java'
+}
+
+group 'kr.co.wincom'
+version '1.0'
+
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "io.github.java-diff-utils:java-diff-utils:4.12"
+    implementation "com.google.code.gson:gson:2.10"
+}
+
+intellij {
+    version = "2020.2.1"
+    type = "IC"
+    plugins = ["com.intellij.java"]
+}
+
+test {
+    useJUnitPlatform()
+}
