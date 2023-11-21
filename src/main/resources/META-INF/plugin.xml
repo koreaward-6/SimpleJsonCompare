@@ -8,20 +8,27 @@
     <depends>com.intellij.modules.platform</depends>
 
     <description><![CDATA[
-    <p>Intellij Plugin, which compares and displays Json data from Left URL and Right URL.</p>
-    <p>☞ Menu &gt; Tools &gt; Simple Json Compare</p>
-    <p>☞ Left URL ex) http://ip:port/path?parameter</p>
-    <p>☞ Right URL ex) http://ip:port or http://ip:port/path?parameter</p>
+    <ul>
+        <li>Intellij Plugin, which compares and displays Json data from Left URL and Right URL.</li>
+        <li>Menu &gt; Tools &gt; Simple Json Compare</li>
+        <li>Right Tool Window 'Simple Json Compare' Click</li>
+        <li>Left URL ex) http://ip:port/path?parameter</li>
+        <li>Right URL ex) http://ip:port or http://ip:port/path?parameter</li>
+    </ul>
     ]]></description>
 
     <change-notes>
         <![CDATA[
-
+      <ul>
+        <li><b>1.5</b> Add Tool Window</li>
+        <li><b>1.3</b> First Release.</li>
+      </ul>
     ]]>
     </change-notes>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
+        <toolWindow id="Simple Json Compare" secondary="true" icon="AllIcons.Toolwindows.WebToolWindow" anchor="right"
+                    factoryClass="kr.co.wincom.sjc.SjcToolWindowFactory"/>
     </extensions>
 
     <idea-version since-build="202.6948.69" until-build="233.*"/>

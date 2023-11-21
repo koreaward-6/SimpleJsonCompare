@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.jcef.JBCefBrowser;
 import kr.co.wincom.sjc.dto.ResultDto;
 import kr.co.wincom.sjc.service.HttpService;
+import kr.co.wincom.sjc.type.DialogToolWindowType;
 import kr.co.wincom.sjc.type.MethodType;
 import kr.co.wincom.sjc.util.CommonUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class CompareForm {
-    private JDialog dialog = new JDialog();
+    private DialogToolWindowType dialogToolWindowType;
+    private JDialog dialog;
 
     private JBCefBrowser jbCefBrowser;
     private JPanel mainPanel;
@@ -34,7 +36,11 @@ public class CompareForm {
     private JButton btnCompare;
     private JPanel webviewPanel;
 
-    public void onShowing() {
+    public CompareForm(DialogToolWindowType dialogToolWindowType) {
+        this.dialogToolWindowType = dialogToolWindowType;
+    }
+
+    public void init() {
         this.cbMethod.addItem(MethodType.GET.getCode());
         this.cbMethod.addItem(MethodType.POST.getCode());
         this.cbMethod.addItem(MethodType.PUT.getCode());
@@ -72,13 +78,20 @@ public class CompareForm {
             this.txtLeftUrl.requestFocus();
         });
 
-        this.dialog.setTitle("Simple Json Compare");
-        this.dialog.setModal(true);
-        this.dialog.add(this.mainPanel, BorderLayout.CENTER);
-        this.dialog.pack();
-        this.dialog.setSize(800, 700);
-        this.dialog.setLocation(500, 100);
-        this.dialog.setVisible(true);
+        if (this.dialogToolWindowType.equals(DialogToolWindowType.JDIALOG)) {
+            this.dialog = new JDialog();
+            this.dialog.setTitle("Simple Json Compare");
+            this.dialog.setModal(true);
+            this.dialog.add(this.mainPanel, BorderLayout.CENTER);
+            this.dialog.pack();
+            this.dialog.setSize(800, 700);
+            this.dialog.setLocation(500, 100);
+            this.dialog.setVisible(true);
+        }
+    }
+
+    public JPanel getMainPanel() {
+        return this.mainPanel;
     }
 
     private void execute() {

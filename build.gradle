@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'kr.co.wincom'
-version '1.3'
+version '1.5'
 
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"

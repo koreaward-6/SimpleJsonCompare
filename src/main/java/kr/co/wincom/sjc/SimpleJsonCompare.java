@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.jcef.JBCefApp;
+import kr.co.wincom.sjc.type.DialogToolWindowType;
 import org.jetbrains.annotations.NotNull;
 
 public class SimpleJsonCompare extends AnAction {
@@ -17,7 +18,7 @@ public class SimpleJsonCompare extends AnAction {
             return;
         }
 
-        CompareForm compareForm = new CompareForm();
-        compareForm.onShowing();
+        CompareForm compareForm = new CompareForm(DialogToolWindowType.JDIALOG);
+        compareForm.init();
     }
 }
