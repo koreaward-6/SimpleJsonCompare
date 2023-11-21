@@ -22,13 +22,7 @@ intellij {
     version = "2020.2.1"
     type = "IC"
     plugins = ["com.intellij.java"]
-}
-
-tasks {
-    patchPluginXml {
-        sinceBuild = "202.6948.69"
-        untilBuild = "233.*"
-    }
+    updateSinceUntilBuild = false
 }
 
 test {
