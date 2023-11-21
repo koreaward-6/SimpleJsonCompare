@@ -8,8 +8,8 @@
     <depends>com.intellij.modules.platform</depends>
 
     <description><![CDATA[
+    <P>Intellij Plugin, which compares and displays Json data from Left URL and Right URL.</P>
     <ul>
-        <li>Intellij Plugin, which compares and displays Json data from Left URL and Right URL.</li>
         <li>Menu &gt; Tools &gt; Simple Json Compare</li>
         <li>Right Tool Window 'Simple Json Compare' Click</li>
         <li>Left URL ex) http://ip:port/path?parameter</li>
@@ -31,7 +31,7 @@
                     factoryClass="kr.co.wincom.sjc.SjcToolWindowFactory"/>
     </extensions>
 
-    <idea-version since-build="202.6948.69" until-build="233.*"/>
+    <idea-version since-build="202.6948.69"/>
 
     <id>kr.co.wincom.sjc.SimpleJsonCompare</id>
 
