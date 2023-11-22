@@ -22,7 +22,14 @@ public class SjcToolWindowFactory implements ToolWindowFactory, DumbAware {
 
         CompareForm compareForm = new CompareForm(DialogToolWindowType.TOOL_WINDOW);
         compareForm.init();
-        Content content = ContentFactory.SERVICE.getInstance().createContent(compareForm.getMainPanel(), "", false);
+
+        Content content;
+        try {
+            content = ContentFactory.getInstance().createContent(compareForm.getMainPanel(), "", false);
+        } catch (NoSuchMethodError error) {
+            content = ContentFactory.SERVICE.getInstance().createContent(compareForm.getMainPanel(), "", false);
+        }
+
         toolWindow.getContentManager().addContent(content);
     }
 }

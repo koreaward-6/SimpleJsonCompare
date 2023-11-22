@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'kr.co.wincom'
-version '1.5'
+version '1.6'
 
 compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"
@@ -19,7 +19,7 @@ dependencies {
 }
 
 intellij {
-    version = "2020.2.1"
+    version = "2022.2.5"
     type = "IC"
     plugins = ["com.intellij.java"]
     updateSinceUntilBuild = false
