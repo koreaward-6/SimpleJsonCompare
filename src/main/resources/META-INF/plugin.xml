@@ -8,10 +8,9 @@
     <depends>com.intellij.modules.platform</depends>
 
     <description><![CDATA[
-    <P>Intellij Plugin, which compares and displays Json data from Left URL and Right URL.</P>
+    <P>IntelliJ Plugin, which compares and displays Json data from Left URL and Right URL.</P>
     <ul>
-        <li>Menu &gt; Tools &gt; Simple Json Compare</li>
-        <li>Right Tool Window 'Simple Json Compare' Click</li>
+        <li>Click the tool window 'Simple Json Compare' or Menu &gt; Tools &gt; Simple Json Compare</li>
         <li>Left URL ex) http://ip:port/path?parameter</li>
         <li>Right URL ex) http://ip:port or http://ip:port/path?parameter</li>
     </ul>
