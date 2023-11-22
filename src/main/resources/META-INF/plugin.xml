@@ -26,7 +26,7 @@
     </change-notes>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Simple Json Compare" secondary="true" icon="AllIcons.Toolwindows.WebToolWindow" anchor="right"
+        <toolWindow id="Simple Json Compare" secondary="true" icon="AllIcons.Actions.Diff" anchor="right"
                     factoryClass="kr.co.wincom.sjc.SjcToolWindowFactory"/>
     </extensions>
 
