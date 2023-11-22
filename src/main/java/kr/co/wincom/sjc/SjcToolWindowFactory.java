@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.jcef.JBCefApp;
@@ -23,13 +24,7 @@ public class SjcToolWindowFactory implements ToolWindowFactory, DumbAware {
         CompareForm compareForm = new CompareForm(DialogToolWindowType.TOOL_WINDOW);
         compareForm.init();
 
-        Content content;
-        try {
-            content = ContentFactory.getInstance().createContent(compareForm.getMainPanel(), "", false);
-        } catch (NoSuchMethodError error) {
-            content = ContentFactory.SERVICE.getInstance().createContent(compareForm.getMainPanel(), "", false);
-        }
-
+        Content content = toolWindow.getContentManager().getFactory().createContent(compareForm.getMainPanel(), "", false);
         toolWindow.getContentManager().addContent(content);
     }
 }
