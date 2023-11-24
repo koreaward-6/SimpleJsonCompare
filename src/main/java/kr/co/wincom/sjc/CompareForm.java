@@ -4,8 +4,6 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.jcef.JBCefBrowser;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import kr.co.wincom.sjc.dto.ResultDto;
 import kr.co.wincom.sjc.service.HttpService;
 import kr.co.wincom.sjc.type.DialogToolWindowType;
@@ -17,6 +15,8 @@ import javax.swing.*;
 import javax.swing.event.MouseInputListener;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -38,15 +38,13 @@ public class CompareForm {
     private JButton btnCompare;
     private JPanel webviewPanel;
 
-    private boolean isExecute = true;
-
     public CompareForm(DialogToolWindowType dialogToolWindowType) {
         this.dialogToolWindowType = dialogToolWindowType;
 
         this.mouseEvent();
 
         this.btnCompare.addActionListener(actionEvent -> {
-            if(!this.validation()) {
+            if (!this.validation()) {
                 return;
             }
 
@@ -56,8 +54,8 @@ public class CompareForm {
         this.txtLeftUrl.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if(!validation()) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (!validation()) {
                         return;
                     }
 
@@ -69,8 +67,8 @@ public class CompareForm {
         this.txtRightUrl.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if(!validation()) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (!validation()) {
                         return;
                     }
 
@@ -114,10 +112,6 @@ public class CompareForm {
     }
 
     private boolean validation() {
-        if(!this.isExecute) {
-            return false;
-        }
-
         if (this.txtLeftUrl.getText().isBlank()) {
             this.txtLeftUrl.requestFocus();
             return false;
@@ -128,7 +122,9 @@ public class CompareForm {
             return false;
         }
 
-        this.isExecute = false;
+        this.txtLeftUrl.setEnabled(false);
+        this.txtRightUrl.setEnabled(false);
+
         this.jbCefBrowser.loadHTML("");
 
         this.btnCompare.setEnabled(false);
@@ -205,8 +201,10 @@ public class CompareForm {
         } finally {
             this.btnCompare.setEnabled(true);
             this.btnCompare.setText("Compare");
+            this.webviewPanel.requestFocus();
 
-            this.isExecute = true;
+            this.txtLeftUrl.setEnabled(true);
+            this.txtRightUrl.setEnabled(true);
         }
     }
 
