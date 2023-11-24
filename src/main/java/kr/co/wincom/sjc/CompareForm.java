@@ -4,6 +4,8 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.jcef.JBCefBrowser;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import kr.co.wincom.sjc.dto.ResultDto;
 import kr.co.wincom.sjc.service.HttpService;
 import kr.co.wincom.sjc.type.DialogToolWindowType;
@@ -36,8 +38,46 @@ public class CompareForm {
     private JButton btnCompare;
     private JPanel webviewPanel;
 
+    private boolean isExecute = true;
+
     public CompareForm(DialogToolWindowType dialogToolWindowType) {
         this.dialogToolWindowType = dialogToolWindowType;
+
+        this.mouseEvent();
+
+        this.btnCompare.addActionListener(actionEvent -> {
+            if(!this.validation()) {
+                return;
+            }
+
+            SwingUtilities.invokeLater(() -> execute());
+        });
+
+        this.txtLeftUrl.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if(!validation()) {
+                        return;
+                    }
+
+                    SwingUtilities.invokeLater(() -> execute());
+                }
+            }
+        });
+
+        this.txtRightUrl.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if(!validation()) {
+                        return;
+                    }
+
+                    SwingUtilities.invokeLater(() -> execute());
+                }
+            }
+        });
     }
 
     public void init() {
@@ -46,27 +86,6 @@ public class CompareForm {
         this.cbMethod.addItem(MethodType.PUT.getCode());
         this.cbMethod.addItem(MethodType.PATCH.getCode());
         this.cbMethod.addItem(MethodType.DELETE.getCode());
-
-        this.mouseEvent();
-
-        this.btnCompare.addActionListener(actionEvent -> {
-            if (txtLeftUrl.getText().isBlank()) {
-                txtLeftUrl.requestFocus();
-                return;
-            }
-
-            if (txtRightUrl.getText().isBlank()) {
-                txtRightUrl.requestFocus();
-                return;
-            }
-
-            this.jbCefBrowser.loadHTML("");
-
-            this.btnCompare.setEnabled(false);
-            this.btnCompare.setText("Wait......");
-
-            SwingUtilities.invokeLater(() -> execute());
-        });
 
         SwingUtilities.invokeLater(() -> {
             this.jbCefBrowser = new JBCefBrowser();
@@ -92,6 +111,30 @@ public class CompareForm {
 
     public JPanel getMainPanel() {
         return this.mainPanel;
+    }
+
+    private boolean validation() {
+        if(!this.isExecute) {
+            return false;
+        }
+
+        if (this.txtLeftUrl.getText().isBlank()) {
+            this.txtLeftUrl.requestFocus();
+            return false;
+        }
+
+        if (this.txtRightUrl.getText().isBlank()) {
+            this.txtRightUrl.requestFocus();
+            return false;
+        }
+
+        this.isExecute = false;
+        this.jbCefBrowser.loadHTML("");
+
+        this.btnCompare.setEnabled(false);
+        this.btnCompare.setText("Wait......");
+
+        return true;
     }
 
     private void execute() {
@@ -162,6 +205,8 @@ public class CompareForm {
         } finally {
             this.btnCompare.setEnabled(true);
             this.btnCompare.setText("Compare");
+
+            this.isExecute = true;
         }
     }
 

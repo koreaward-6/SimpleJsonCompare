@@ -1,7 +1,7 @@
 <idea-plugin>
     <actions>
         <group id="simpleJsonCompareGroup" text="Simple Json Compare">
-            <action class="kr.co.wincom.sjc.SimpleJsonCompare" id="simpleJsonCompareSub" text="Simple Json Compare"/>
+            <action class="kr.co.wincom.sjc.SimpleJsonCompare" id="simpleJsonCompareSub" text="Simple Json Compare" icon="AllIcons.Actions.Diff"/>
             <add-to-group anchor="last" group-id="ToolsMenu"/>
         </group>
     </actions>
@@ -19,6 +19,7 @@
     <change-notes>
         <![CDATA[
       <ul>
+        <li><b>1.1</b> Detect enter press of Left URL and Right URL.</li>
         <li><b>1.0</b> First Release.</li>
       </ul>
     ]]>
