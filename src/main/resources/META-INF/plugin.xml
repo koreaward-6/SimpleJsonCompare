@@ -1,7 +1,8 @@
 <idea-plugin>
     <actions>
         <group id="simpleJsonCompareGroup" text="Simple Json Compare">
-            <action class="kr.co.wincom.sjc.SimpleJsonCompare" id="simpleJsonCompareSub" text="Simple Json Compare" icon="AllIcons.Actions.Diff"/>
+            <action class="kr.co.wincom.sjc.SimpleJsonCompare" id="simpleJsonCompareSub" text="Simple Json Compare"
+                    icon="AllIcons.Actions.Diff"/>
             <add-to-group anchor="last" group-id="ToolsMenu"/>
         </group>
     </actions>
@@ -26,7 +27,7 @@
     </change-notes>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Simple Json Compare" secondary="true" icon="AllIcons.Actions.Diff" anchor="right"
+        <toolWindow id="Simple Json Compare" secondary="true" icon="AllIcons.Actions.Diff" anchor="right" order="last"
                     factoryClass="kr.co.wincom.sjc.SjcToolWindowFactory"/>
     </extensions>
 
