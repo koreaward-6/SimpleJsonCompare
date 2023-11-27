@@ -142,7 +142,7 @@
           </grid>
         </constraints>
       </vspacer>
-      <grid id="d609f" layout-manager="FlowLayout" hgap="-1" vgap="-1" flow-align="1">
+      <grid id="d609f" layout-manager="FlowLayout" hgap="5" vgap="1" flow-align="1">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -152,7 +152,14 @@
           <component id="293e4" class="javax.swing.JButton" binding="btnCompare">
             <constraints/>
             <properties>
+              <margin top="0" left="0" bottom="0" right="0"/>
               <text value="Compare"/>
+            </properties>
+          </component>
+          <component id="b4eb8" class="javax.swing.JButton" binding="btnUrlList">
+            <constraints/>
+            <properties>
+              <text value="URL List"/>
             </properties>
           </component>
         </children>

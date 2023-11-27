@@ -37,6 +37,7 @@ public class CompareForm {
     private JTextArea taBodyData;
     private JButton btnCompare;
     private JPanel webviewPanel;
+    private JButton btnUrlList;
 
     public CompareForm(DialogToolWindowType dialogToolWindowType) {
         this.dialogToolWindowType = dialogToolWindowType;
@@ -75,6 +76,11 @@ public class CompareForm {
                     SwingUtilities.invokeLater(() -> execute());
                 }
             }
+        });
+
+        this.btnUrlList.addActionListener(actionEvent -> {
+            UrlListForm urlListForm = new UrlListForm();
+            urlListForm.init();
         });
     }
 
