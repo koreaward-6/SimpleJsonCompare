@@ -1,11 +1,11 @@
 package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.jcef.JBCefBrowser;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.DefaultPersistenceDelegate;
 import java.beans.Encoder;
 import java.beans.Statement;
@@ -22,14 +22,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import kr.co.wincom.sjc.type.MethodType;
@@ -67,6 +65,13 @@ public class UrlListForm {
         DefaultTableCellRenderer celAlignCenter = new DefaultTableCellRenderer();
         celAlignCenter.setHorizontalAlignment(JLabel.CENTER);
         this.urlTable.getColumn("Method").setCellRenderer(celAlignCenter);
+
+        // 이렇게 해야 팝업창 띄웠을 때 Title TextField에 포커스가 간다.
+        this.dialog.addWindowListener(new WindowAdapter() {
+            public void windowOpened(WindowEvent e) {
+                txtTitle.requestFocus();
+            }
+        });
 
         // Insert Button
         this.btnInsert.addActionListener(e -> {
