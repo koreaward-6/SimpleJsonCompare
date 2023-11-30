@@ -1,37 +1,23 @@
 package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
-import java.awt.BorderLayout;
+import kr.co.wincom.sjc.type.MethodType;
+import org.apache.commons.lang.StringUtils;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.DefaultPersistenceDelegate;
-import java.beans.Encoder;
-import java.beans.Statement;
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.beans.*;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import kr.co.wincom.sjc.type.MethodType;
-import org.apache.commons.lang.StringUtils;
 
 public class UrlListForm {
     CompareForm compareForm;
@@ -61,10 +47,7 @@ public class UrlListForm {
         model.addColumn("Right URL");
         model.addColumn("Body");
 
-        this.urlTable.getColumnModel().getColumn(1).setMaxWidth(70);
-        DefaultTableCellRenderer celAlignCenter = new DefaultTableCellRenderer();
-        celAlignCenter.setHorizontalAlignment(JLabel.CENTER);
-        this.urlTable.getColumn("Method").setCellRenderer(celAlignCenter);
+        this.columnResize();
 
         // 이렇게 해야 팝업창 띄웠을 때 Title TextField에 포커스가 간다.
         this.dialog.addWindowListener(new WindowAdapter() {
@@ -75,7 +58,7 @@ public class UrlListForm {
 
         // Insert Button
         this.btnInsert.addActionListener(e -> {
-            if(StringUtils.isBlank(this.txtTitle.getText())) {
+            if (StringUtils.isBlank(this.txtTitle.getText())) {
                 this.txtTitle.requestFocus();
                 return;
             }
@@ -112,11 +95,11 @@ public class UrlListForm {
                 DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                 int sRow = urlTable.getSelectedRow();
 
-                String title = (String)model.getValueAt(sRow, 0);
-                String method = (String)model.getValueAt(sRow, 1);
-                String leftUrl = (String)model.getValueAt(sRow, 2);
-                String rightUrl = (String)model.getValueAt(sRow, 3);
-                String bodyData = (String)model.getValueAt(sRow, 4);
+                String title = (String) model.getValueAt(sRow, 0);
+                String method = (String) model.getValueAt(sRow, 1);
+                String leftUrl = (String) model.getValueAt(sRow, 2);
+                String rightUrl = (String) model.getValueAt(sRow, 3);
+                String bodyData = (String) model.getValueAt(sRow, 4);
 
                 txtTitle.setText(title);
                 cbMethod.setSelectedItem(method);
@@ -146,7 +129,7 @@ public class UrlListForm {
         this.dialog.setModal(true);
         this.dialog.add(this.mainPanel, BorderLayout.CENTER);
         this.dialog.pack();
-        this.dialog.setSize(800, 600);
+        this.dialog.setSize(800, 690);
         this.dialog.setLocation(600, 200);
         this.dialog.setVisible(true);
     }
@@ -159,6 +142,13 @@ public class UrlListForm {
         this.taBodyData.setText("");
     }
 
+    private void columnResize() {
+        this.urlTable.getColumnModel().getColumn(1).setMaxWidth(70);
+        DefaultTableCellRenderer celAlignCenter = new DefaultTableCellRenderer();
+        celAlignCenter.setHorizontalAlignment(JLabel.CENTER);
+        this.urlTable.getColumn("Method").setCellRenderer(celAlignCenter);
+    }
+
     // JTable 의 내용을 XML 파일로 저장
     private void xmlFileSave(DefaultTableModel defaultTableModel) {
         String userHome = System.getProperty("user.home");
@@ -167,8 +157,11 @@ public class UrlListForm {
             Path dirPath = Paths.get(userHome + "/simpleJsonCompare");
             Path xmlPath = Paths.get(userHome + "/simpleJsonCompare/simpleJsonCompare.xml");
 
-            if (!Files.exists(xmlPath)) {
+            if (!Files.exists(dirPath)) {
                 Files.createDirectory(dirPath);
+            }
+
+            if (!Files.exists(xmlPath)) {
                 Files.createFile(xmlPath);
             }
 
@@ -200,6 +193,15 @@ public class UrlListForm {
             try (XMLDecoder xd = new XMLDecoder(new BufferedInputStream(new FileInputStream(xmlPath.toFile())))) {
                 DefaultTableModel model = (DefaultTableModel) xd.readObject();
                 this.urlTable.setModel(model);
+
+                TableColumnModel tableColumnModel = this.urlTable.getColumnModel();
+                tableColumnModel.getColumn(0).setHeaderValue("Title");
+                tableColumnModel.getColumn(1).setHeaderValue("Method");
+                tableColumnModel.getColumn(2).setHeaderValue("Left URL");
+                tableColumnModel.getColumn(3).setHeaderValue("Right URL");
+                tableColumnModel.getColumn(4).setHeaderValue("Body");
+
+                this.columnResize();
             }
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
@@ -214,13 +216,13 @@ public class UrlListForm {
     class DefaultTableModelPersistenceDelegate extends DefaultPersistenceDelegate {
         @Override
         protected void initialize(Class<?> type, Object oldInstance, Object newInstance, Encoder encoder) {
-            super.initialize(type, oldInstance,  newInstance, encoder);
+            super.initialize(type, oldInstance, newInstance, encoder);
 
             DefaultTableModel m = (DefaultTableModel) oldInstance;
 
             for (int row = 0; row < m.getRowCount(); row++) {
                 for (int col = 0; col < m.getColumnCount(); col++) {
-                    Object[] o = new Object[] {m.getValueAt(row, col), row, col};
+                    Object[] o = new Object[]{m.getValueAt(row, col), row, col};
                     encoder.writeStatement(new Statement(oldInstance, "setValueAt", o));
                 }
             }
