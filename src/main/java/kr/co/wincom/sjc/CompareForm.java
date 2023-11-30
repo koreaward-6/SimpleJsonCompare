@@ -79,8 +79,8 @@ public class CompareForm {
         });
 
         this.btnUrlList.addActionListener(actionEvent -> {
-            UrlListForm urlListForm = new UrlListForm();
-            urlListForm.init();
+            UrlListForm urlListForm = new UrlListForm(this);
+            urlListForm.init((String) this.cbMethod.getSelectedItem(), this.txtLeftUrl.getText(), this.txtRightUrl.getText(), this.taBodyData.getText());
         });
     }
 

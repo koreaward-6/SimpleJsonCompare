@@ -1,23 +1,43 @@
 package kr.co.wincom.sjc;
 
+import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.jcef.JBCefBrowser;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.DefaultPersistenceDelegate;
+import java.beans.Encoder;
+import java.beans.Statement;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import kr.co.wincom.sjc.type.MethodType;
+import org.apache.commons.lang.StringUtils;
 
 public class UrlListForm {
+    CompareForm compareForm;
+
     private JDialog dialog = new JDialog();
 
     private JPanel mainPanel;
@@ -33,7 +53,9 @@ public class UrlListForm {
     private JTextField txtRightUrl;
     private JTextArea taBodyData;
 
-    public UrlListForm() {
+    public UrlListForm(CompareForm compareForm) {
+        this.compareForm = compareForm;
+
         DefaultTableModel model = (DefaultTableModel) this.urlTable.getModel();
         model.addColumn("Title");
         model.addColumn("Method");
@@ -48,19 +70,29 @@ public class UrlListForm {
 
         // Insert Button
         this.btnInsert.addActionListener(e -> {
+            if(StringUtils.isBlank(this.txtTitle.getText())) {
+                this.txtTitle.requestFocus();
+                return;
+            }
+
             this.btnInsert.setEnabled(false);
 
-            String title = "타이틀";
-            String method = "PUT";
-            String leftUrl = "http://127.0.0.1:8081/aaa?param=a";
-            String rightUrl = "http://127.0.0.1:8081";
-            String body = "I Love My Body/화사 (HWASA)";
+            String title = this.txtTitle.getText();
+            String method = (String) this.cbMethod.getSelectedItem();
+            String leftUrl = this.txtLeftUrl.getText();
+            String rightUrl = this.txtRightUrl.getText();
+            String bodyData = this.taBodyData.getText();
 
-            Object[] row = { title + " - " + model.getRowCount(), method, leftUrl, rightUrl, body};
+            Object[] row = {title, method, leftUrl, rightUrl, bodyData};
 
-            model.insertRow(0, row);
+            DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
+            dfTableModel.insertRow(0, row);
+            this.xmlFileSave(dfTableModel);
 
             this.btnInsert.setEnabled(true);
+            this.urlTable.clearSelection();
+            this.txtTitle.requestFocus();
+            this.clear();
         });
 
         // Close Button
@@ -69,7 +101,7 @@ public class UrlListForm {
         });
 
         // URL Table
-        urlTable.addMouseListener(new MouseAdapter() {
+        this.urlTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
@@ -79,23 +111,31 @@ public class UrlListForm {
                 String method = (String)model.getValueAt(sRow, 1);
                 String leftUrl = (String)model.getValueAt(sRow, 2);
                 String rightUrl = (String)model.getValueAt(sRow, 3);
-                String body = (String)model.getValueAt(sRow, 4);
+                String bodyData = (String)model.getValueAt(sRow, 4);
 
                 txtTitle.setText(title);
                 cbMethod.setSelectedItem(method);
                 txtLeftUrl.setText(leftUrl);
                 txtRightUrl.setText(rightUrl);
-                taBodyData.setText(body);
+                taBodyData.setText(bodyData);
             }
         });
     }
 
-    public void init() {
+    public void init(String method, String leftUrl, String rightUrl, String bodyData) {
         this.cbMethod.addItem(MethodType.GET.getCode());
         this.cbMethod.addItem(MethodType.POST.getCode());
         this.cbMethod.addItem(MethodType.PUT.getCode());
         this.cbMethod.addItem(MethodType.PATCH.getCode());
         this.cbMethod.addItem(MethodType.DELETE.getCode());
+
+        this.xmlFileRead();
+
+        this.txtTitle.setText("");
+        this.cbMethod.setSelectedItem(method);
+        this.txtLeftUrl.setText(leftUrl);
+        this.txtRightUrl.setText(rightUrl);
+        this.taBodyData.setText(bodyData);
 
         this.dialog.setTitle("URL List");
         this.dialog.setModal(true);
@@ -104,5 +144,81 @@ public class UrlListForm {
         this.dialog.setSize(800, 600);
         this.dialog.setLocation(600, 200);
         this.dialog.setVisible(true);
+    }
+
+    private void clear() {
+        this.txtTitle.setText("");
+        this.cbMethod.setSelectedItem(MethodType.GET.getCode());
+        this.txtLeftUrl.setText("");
+        this.txtRightUrl.setText("");
+        this.taBodyData.setText("");
+    }
+
+    // JTable 의 내용을 XML 파일로 저장
+    private void xmlFileSave(DefaultTableModel defaultTableModel) {
+        String userHome = System.getProperty("user.home");
+
+        try {
+            Path dirPath = Paths.get(userHome + "/simpleJsonCompare");
+            Path xmlPath = Paths.get(userHome + "/simpleJsonCompare/simpleJsonCompare.xml");
+
+            if (!Files.exists(xmlPath)) {
+                Files.createDirectory(dirPath);
+                Files.createFile(xmlPath);
+            }
+
+            try (XMLEncoder xe = new XMLEncoder(new BufferedOutputStream(new FileOutputStream(xmlPath.toFile())))) {
+                Class<DefaultTableModel> clz = DefaultTableModel.class;
+                xe.setPersistenceDelegate(clz, new DefaultTableModelPersistenceDelegate());
+
+                xe.writeObject(clz.cast(defaultTableModel));
+            }
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionMsg = sw.toString();
+
+            Messages.showMessageDialog(exceptionMsg, "Error", Messages.getErrorIcon());
+        }
+    }
+
+    private void xmlFileRead() {
+        String userHome = System.getProperty("user.home");
+
+        try {
+            Path xmlPath = Paths.get(userHome + "/simpleJsonCompare/simpleJsonCompare.xml");
+
+            if (!Files.exists(xmlPath)) {
+                return;
+            }
+
+            try (XMLDecoder xd = new XMLDecoder(new BufferedInputStream(new FileInputStream(xmlPath.toFile())))) {
+                DefaultTableModel model = (DefaultTableModel) xd.readObject();
+                this.urlTable.setModel(model);
+            }
+        } catch (Exception ex) {
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionMsg = sw.toString();
+
+            Messages.showMessageDialog(exceptionMsg, "Error", Messages.getErrorIcon());
+        }
+    }
+
+    // https://github.com/aterai/java-swing-tips/blob/master/PersistenceDelegate/src/java/example/MainPanel.java
+    class DefaultTableModelPersistenceDelegate extends DefaultPersistenceDelegate {
+        @Override
+        protected void initialize(Class<?> type, Object oldInstance, Object newInstance, Encoder encoder) {
+            super.initialize(type, oldInstance,  newInstance, encoder);
+
+            DefaultTableModel m = (DefaultTableModel) oldInstance;
+
+            for (int row = 0; row < m.getRowCount(); row++) {
+                for (int col = 0; col < m.getColumnCount(); col++) {
+                    Object[] o = new Object[] {m.getValueAt(row, col), row, col};
+                    encoder.writeStatement(new Statement(oldInstance, "setValueAt", o));
+                }
+            }
+        }
     }
 }
