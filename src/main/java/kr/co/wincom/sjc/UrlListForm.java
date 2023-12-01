@@ -1,25 +1,43 @@
 package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
-import kr.co.wincom.sjc.type.MethodType;
-import org.apache.commons.lang.StringUtils;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.*;
-import java.io.*;
+import java.beans.DefaultPersistenceDelegate;
+import java.beans.Encoder;
+import java.beans.Statement;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import kr.co.wincom.sjc.type.MethodType;
+import org.apache.commons.lang.StringUtils;
 
 public class UrlListForm {
+
     CompareForm compareForm;
 
     private JDialog dialog = new JDialog();
@@ -40,6 +58,7 @@ public class UrlListForm {
     public UrlListForm(CompareForm compareForm) {
         this.compareForm = compareForm;
 
+        this.urlTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         DefaultTableModel model = (DefaultTableModel) this.urlTable.getModel();
         model.addColumn("Title");
         model.addColumn("Method");
@@ -77,10 +96,74 @@ public class UrlListForm {
             dfTableModel.insertRow(0, row);
             this.xmlFileSave(dfTableModel);
 
-            this.btnInsert.setEnabled(true);
             this.urlTable.clearSelection();
             this.txtTitle.requestFocus();
             this.clear();
+            this.btnInsert.setEnabled(true);
+        });
+
+        // Update Button
+        this.btnUpdate.addActionListener(e -> {
+            if (this.urlTable.getSelectedRow() < 0) {
+                return;
+            }
+
+            if (StringUtils.isBlank(this.txtTitle.getText())) {
+                this.txtTitle.requestFocus();
+                return;
+            }
+
+            this.btnUpdate.setEnabled(false);
+
+            int selectedRow = this.urlTable.getSelectedRow();
+            DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
+            dfTableModel.setValueAt(this.txtTitle.getText(), selectedRow, 0);
+            dfTableModel.setValueAt(this.cbMethod.getSelectedItem(), selectedRow, 1);
+            dfTableModel.setValueAt(this.txtLeftUrl.getText(), selectedRow, 2);
+            dfTableModel.setValueAt(this.txtRightUrl.getText(), selectedRow, 3);
+            dfTableModel.setValueAt(this.taBodyData.getText(), selectedRow, 4);
+            this.xmlFileSave(dfTableModel);
+
+            this.txtTitle.requestFocus();
+            this.btnUpdate.setEnabled(true);
+        });
+
+        // Delete Button
+        this.btnDelete.addActionListener(e -> {
+            if (this.urlTable.getSelectedRow() < 0) {
+                return;
+            }
+
+            int retVal = JOptionPane.showConfirmDialog(this.dialog, "delete?");
+            if (retVal != 0) { // 0=yes, 1=no, 2=cancel
+                return;
+            }
+
+            this.btnDelete.setEnabled(false);
+
+            DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
+            dfTableModel.removeRow(this.urlTable.getSelectedRow());
+            this.xmlFileSave(dfTableModel);
+
+            this.urlTable.clearSelection();
+            this.txtTitle.requestFocus();
+            this.clear();
+            this.btnDelete.setEnabled(true);
+        });
+
+        // Put Button
+        this.btnPut.addActionListener(e -> {
+            String method = (String) this.cbMethod.getSelectedItem();
+            String leftUrl = this.txtLeftUrl.getText();
+            String rightUrl = this.txtRightUrl.getText();
+            String bodyData = this.taBodyData.getText();
+
+            if (StringUtils.isBlank(leftUrl) && StringUtils.isBlank(rightUrl)) {
+                return;
+            }
+
+            this.compareForm.putData(method, leftUrl, rightUrl, bodyData);
+            this.dialog.dispose();
         });
 
         // Close Button
@@ -214,6 +297,7 @@ public class UrlListForm {
 
     // https://github.com/aterai/java-swing-tips/blob/master/PersistenceDelegate/src/java/example/MainPanel.java
     class DefaultTableModelPersistenceDelegate extends DefaultPersistenceDelegate {
+
         @Override
         protected void initialize(Class<?> type, Object oldInstance, Object newInstance, Encoder encoder) {
             super.initialize(type, oldInstance, newInstance, encoder);

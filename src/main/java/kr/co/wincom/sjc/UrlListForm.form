@@ -127,6 +127,7 @@
                     <constraints/>
                     <properties>
                       <rows value="9"/>
+                      <tabSize value="4"/>
                     </properties>
                   </component>
                 </children>

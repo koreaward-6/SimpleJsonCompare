@@ -118,6 +118,7 @@
               <component id="6c55e" class="javax.swing.JTextArea" binding="taBodyData">
                 <constraints/>
                 <properties>
+                  <tabSize value="4"/>
                   <toolTipText value="Message Body"/>
                 </properties>
               </component>

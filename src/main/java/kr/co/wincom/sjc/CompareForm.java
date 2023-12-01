@@ -4,17 +4,8 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.jcef.JBCefBrowser;
-import kr.co.wincom.sjc.dto.ResultDto;
-import kr.co.wincom.sjc.service.HttpService;
-import kr.co.wincom.sjc.type.DialogToolWindowType;
-import kr.co.wincom.sjc.type.MethodType;
-import kr.co.wincom.sjc.util.CommonUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import javax.swing.*;
-import javax.swing.event.MouseInputListener;
-import javax.swing.text.DefaultEditorKit;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -24,6 +15,24 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.event.MouseInputListener;
+import javax.swing.text.DefaultEditorKit;
+import kr.co.wincom.sjc.dto.ResultDto;
+import kr.co.wincom.sjc.service.HttpService;
+import kr.co.wincom.sjc.type.DialogToolWindowType;
+import kr.co.wincom.sjc.type.MethodType;
+import kr.co.wincom.sjc.util.CommonUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class CompareForm {
     private DialogToolWindowType dialogToolWindowType;
@@ -115,6 +124,14 @@ public class CompareForm {
 
     public JPanel getMainPanel() {
         return this.mainPanel;
+    }
+
+    // UrlListForm 에서 Put 버튼 클릭시 호출
+    public void putData(String method, String leftUrl, String rightUrl, String bodyData) {
+        this.cbMethod.setSelectedItem(method);
+        this.txtLeftUrl.setText(leftUrl);
+        this.txtRightUrl.setText(rightUrl);
+        this.taBodyData.setText(bodyData);
     }
 
     private boolean validation() {
