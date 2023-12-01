@@ -1,40 +1,20 @@
 package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
-import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.DefaultPersistenceDelegate;
-import java.beans.Encoder;
-import java.beans.Statement;
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import kr.co.wincom.sjc.type.MethodType;
+import org.apache.commons.lang.StringUtils;
+
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import kr.co.wincom.sjc.type.MethodType;
-import org.apache.commons.lang.StringUtils;
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class UrlListForm {
     private CompareForm compareForm;
@@ -134,14 +114,16 @@ public class UrlListForm {
                 return;
             }
 
-            int retVal = JOptionPane.showConfirmDialog(this.dialog, "delete?");
+            DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
+            String title = (String) dfTableModel.getValueAt(this.urlTable.getSelectedRow(), 0);
+
+            int retVal = JOptionPane.showConfirmDialog(this.dialog, title + ", delete?");
             if (retVal != 0) { // 0=yes, 1=no, 2=cancel
                 return;
             }
 
             this.btnDelete.setEnabled(false);
 
-            DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
             dfTableModel.removeRow(this.urlTable.getSelectedRow());
             this.xmlFileSave(dfTableModel);
 
@@ -189,6 +171,30 @@ public class UrlListForm {
                 txtLeftUrl.setText(leftUrl);
                 txtRightUrl.setText(rightUrl);
                 taBodyData.setText(bodyData);
+            }
+        });
+
+        // 방향키 및 페이지업키, 페이지다운키 눌렀을 때
+        this.urlTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN ||
+                        e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+                    DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
+                    int sRow = urlTable.getSelectedRow();
+
+                    String title = (String) model.getValueAt(sRow, 0);
+                    String method = (String) model.getValueAt(sRow, 1);
+                    String leftUrl = (String) model.getValueAt(sRow, 2);
+                    String rightUrl = (String) model.getValueAt(sRow, 3);
+                    String bodyData = (String) model.getValueAt(sRow, 4);
+
+                    txtTitle.setText(title);
+                    cbMethod.setSelectedItem(method);
+                    txtLeftUrl.setText(leftUrl);
+                    txtRightUrl.setText(rightUrl);
+                    taBodyData.setText(bodyData);
+                }
             }
         });
     }
