@@ -37,8 +37,7 @@ import kr.co.wincom.sjc.type.MethodType;
 import org.apache.commons.lang.StringUtils;
 
 public class UrlListForm {
-
-    CompareForm compareForm;
+    private CompareForm compareForm;
 
     private JDialog dialog = new JDialog();
 
@@ -59,6 +58,7 @@ public class UrlListForm {
         this.compareForm = compareForm;
 
         this.urlTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.urlTable.setDefaultEditor(Object.class, null);
         DefaultTableModel model = (DefaultTableModel) this.urlTable.getModel();
         model.addColumn("Title");
         model.addColumn("Method");
