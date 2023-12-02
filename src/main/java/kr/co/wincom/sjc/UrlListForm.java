@@ -2,7 +2,7 @@ package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
 import kr.co.wincom.sjc.type.MethodType;
-import org.apache.commons.lang.StringUtils;
+import kr.co.wincom.sjc.util.CommonUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -57,7 +57,7 @@ public class UrlListForm {
 
         // Insert Button
         this.btnInsert.addActionListener(e -> {
-            if (StringUtils.isBlank(this.txtTitle.getText())) {
+            if (CommonUtils.isBlank(this.txtTitle.getText())) {
                 this.txtTitle.requestFocus();
                 return;
             }
@@ -88,7 +88,7 @@ public class UrlListForm {
                 return;
             }
 
-            if (StringUtils.isBlank(this.txtTitle.getText())) {
+            if (CommonUtils.isBlank(this.txtTitle.getText())) {
                 this.txtTitle.requestFocus();
                 return;
             }
@@ -140,7 +140,7 @@ public class UrlListForm {
             String rightUrl = this.txtRightUrl.getText();
             String bodyData = this.taBodyData.getText();
 
-            if (StringUtils.isBlank(leftUrl) && StringUtils.isBlank(rightUrl)) {
+            if (CommonUtils.isBlank(leftUrl) && CommonUtils.isBlank(rightUrl)) {
                 return;
             }
 

@@ -1,7 +1,7 @@
 package kr.co.wincom.sjc.service;
 
 import kr.co.wincom.sjc.dto.ResultDto;
-import org.apache.commons.lang3.StringUtils;
+import kr.co.wincom.sjc.util.CommonUtils;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -35,7 +35,7 @@ public class HttpService {
     }
 
     private HttpRequest request(String method, String url, String bodyData) {
-        HttpRequest.BodyPublisher bodyPayload = StringUtils.isBlank(bodyData) ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(bodyData);
+        HttpRequest.BodyPublisher bodyPayload = CommonUtils.isBlank(bodyData) ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(bodyData);
 
         return HttpRequest.newBuilder()
                 .uri(URI.create(url))

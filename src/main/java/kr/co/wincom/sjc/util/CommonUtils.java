@@ -4,9 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 public class CommonUtils {
     // URL 형식 체크
@@ -24,7 +25,7 @@ public class CommonUtils {
         URL rightUrl = new URL(strRightUrl);
 
         // http://ip:port 형식으로 입력시
-        if (StringUtils.isBlank(rightUrl.getFile())) {
+        if (isBlank(rightUrl.getFile())) {
             int port = rightUrl.getPort();
             String strPort = port == -1 ? "" : ":" + port;
 
@@ -56,5 +57,25 @@ public class CommonUtils {
         } else {
             return data.replace(" ", "&nbsp;").replace("<", "&lt;").replace(">", "&gt;");
         }
+    }
+
+    public static boolean isBlank(Object obj) {
+        if (obj == null) {
+            return true;
+        }
+        if ((obj instanceof String) && (((String) obj).trim().length() == 0)) {
+            return true;
+        }
+        if (obj instanceof Map) {
+            return ((Map<?, ?>) obj).isEmpty();
+        }
+        if (obj instanceof List) {
+            return ((List<?>) obj).isEmpty();
+        }
+        if (obj instanceof Object[]) {
+            return (((Object[]) obj).length == 0);
+        }
+
+        return false;
     }
 }

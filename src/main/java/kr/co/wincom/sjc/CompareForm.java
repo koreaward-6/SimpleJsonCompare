@@ -4,8 +4,16 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.jcef.JBCefBrowser;
-import java.awt.BorderLayout;
-import java.awt.Color;
+import kr.co.wincom.sjc.dto.ResultDto;
+import kr.co.wincom.sjc.service.HttpService;
+import kr.co.wincom.sjc.type.DialogToolWindowType;
+import kr.co.wincom.sjc.type.MethodType;
+import kr.co.wincom.sjc.util.CommonUtils;
+
+import javax.swing.*;
+import javax.swing.event.MouseInputListener;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -15,24 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.event.MouseInputListener;
-import javax.swing.text.DefaultEditorKit;
-import kr.co.wincom.sjc.dto.ResultDto;
-import kr.co.wincom.sjc.service.HttpService;
-import kr.co.wincom.sjc.type.DialogToolWindowType;
-import kr.co.wincom.sjc.type.MethodType;
-import kr.co.wincom.sjc.util.CommonUtils;
-import org.apache.commons.lang3.StringUtils;
 
 public class CompareForm {
     private DialogToolWindowType dialogToolWindowType;
@@ -174,8 +164,8 @@ public class CompareForm {
             String leftPrettyData = CommonUtils.makeJsonPrettyData(hm.get("leftData"));
             String rightPrettyData = CommonUtils.makeJsonPrettyData(hm.get("rightData"));
 
-            String[] arrLeftData = StringUtils.splitByWholeSeparatorPreserveAllTokens(leftPrettyData, "\n");
-            String[] arrRightData = StringUtils.splitByWholeSeparatorPreserveAllTokens(rightPrettyData, "\n");
+            String[] arrLeftData = leftPrettyData.split("\n", -1);
+            String[] arrRightData = rightPrettyData.split("\n", -1);
 
             DiffRowGenerator generator = DiffRowGenerator.create()
                     .showInlineDiffs(true)
@@ -192,11 +182,11 @@ public class CompareForm {
                 String leftDiffData = row.getOldLine();
                 String rightDiffData = row.getNewLine();
 
-                if (StringUtils.isBlank(leftDiffData)) {
+                if (CommonUtils.isBlank(leftDiffData)) {
                     leftDiffData = rightDiffData.replace(rightDiffTrimData, "") + "(NO DATA)";
                 }
 
-                if (StringUtils.isBlank(rightDiffData)) {
+                if (CommonUtils.isBlank(rightDiffData)) {
                     rightDiffData = leftDiffData.replace(leftDiffTrimData, "") + "(NO DATA)";
                 }
 
