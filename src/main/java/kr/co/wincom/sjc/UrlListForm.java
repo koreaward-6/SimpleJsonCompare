@@ -1,25 +1,50 @@
 package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
-import kr.co.wincom.sjc.type.MethodType;
-import kr.co.wincom.sjc.util.CommonUtils;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
-import java.awt.*;
-import java.awt.event.*;
-import java.beans.*;
-import java.io.*;
+import java.awt.BorderLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.DefaultPersistenceDelegate;
+import java.beans.Encoder;
+import java.beans.Statement;
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.PatternSyntaxException;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+import kr.co.wincom.sjc.type.MethodType;
+import kr.co.wincom.sjc.util.CommonUtils;
 
 public class UrlListForm {
-    private CompareForm compareForm;
-
-    private JDialog dialog = new JDialog();
 
     private JPanel mainPanel;
     private JButton btnInsert;
@@ -33,12 +58,20 @@ public class UrlListForm {
     private JTextField txtLeftUrl;
     private JTextField txtRightUrl;
     private JTextArea taBodyData;
+    private JTextField txtSearchWord;
+
+    private CompareForm compareForm;
+
+    private JDialog dialog = new JDialog();
+    private TableRowSorter<TableModel> rowSorter = new TableRowSorter<>();
 
     public UrlListForm(CompareForm compareForm) {
         this.compareForm = compareForm;
 
+        this.urlTable.setRowSorter(this.rowSorter);
         this.urlTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         this.urlTable.setDefaultEditor(Object.class, null);
+
         DefaultTableModel model = (DefaultTableModel) this.urlTable.getModel();
         model.addColumn("Title");
         model.addColumn("Method");
@@ -47,11 +80,45 @@ public class UrlListForm {
         model.addColumn("Body");
 
         this.columnResize();
+        this.rowSorter.setModel(model);
 
         // 이렇게 해야 팝업창 띄웠을 때 Title TextField에 포커스가 간다.
         this.dialog.addWindowListener(new WindowAdapter() {
             public void windowOpened(WindowEvent e) {
                 txtTitle.requestFocus();
+            }
+        });
+
+        // https://stackoverflow.com/questions/22066387/how-to-search-an-element-in-a-jtable-java
+        // https://velog.io/@jipark09/Java-Swing-JTable-%EC%9E%90%EB%8F%99%EA%B2%80%EC%83%89-%ED%96%89-%EC%84%A0%ED%83%9D
+        this.txtSearchWord.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                search();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                search();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                search();
+            }
+
+            private void search() {
+                String text = txtSearchWord.getText();
+
+                if (text.isBlank()) {
+                    rowSorter.setRowFilter(null);
+                } else {
+                    try {
+                        rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                    } catch (PatternSyntaxException ex) {
+                        rowSorter.setRowFilter(null);
+                    }
+                }
             }
         });
 
@@ -76,6 +143,7 @@ public class UrlListForm {
             dfTableModel.insertRow(0, row);
             this.xmlFileSave(dfTableModel);
 
+            this.rowSorter.setModel(dfTableModel);
             this.urlTable.clearSelection();
             this.txtTitle.requestFocus();
             this.clear();
@@ -84,7 +152,9 @@ public class UrlListForm {
 
         // Update Button
         this.btnUpdate.addActionListener(e -> {
-            if (this.urlTable.getSelectedRow() < 0) {
+            int selectedRow = this.urlTable.getSelectedRow();
+
+            if (selectedRow < 0) {
                 return;
             }
 
@@ -95,22 +165,26 @@ public class UrlListForm {
 
             this.btnUpdate.setEnabled(false);
 
-            int selectedRow = this.urlTable.getSelectedRow();
             DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
-            dfTableModel.setValueAt(this.txtTitle.getText(), selectedRow, 0);
-            dfTableModel.setValueAt(this.cbMethod.getSelectedItem(), selectedRow, 1);
-            dfTableModel.setValueAt(this.txtLeftUrl.getText(), selectedRow, 2);
-            dfTableModel.setValueAt(this.txtRightUrl.getText(), selectedRow, 3);
-            dfTableModel.setValueAt(this.taBodyData.getText(), selectedRow, 4);
+
+            int modelRow = this.urlTable.convertRowIndexToModel(selectedRow);
+            dfTableModel.setValueAt(this.txtTitle.getText(), modelRow, 0);
+            dfTableModel.setValueAt(this.cbMethod.getSelectedItem(), modelRow, 1);
+            dfTableModel.setValueAt(this.txtLeftUrl.getText(), modelRow, 2);
+            dfTableModel.setValueAt(this.txtRightUrl.getText(), modelRow, 3);
+            dfTableModel.setValueAt(this.taBodyData.getText(), modelRow, 4);
             this.xmlFileSave(dfTableModel);
 
+            this.rowSorter.setModel(dfTableModel);
             this.txtTitle.requestFocus();
             this.btnUpdate.setEnabled(true);
         });
 
         // Delete Button
         this.btnDelete.addActionListener(e -> {
-            if (this.urlTable.getSelectedRow() < 0) {
+            int selectedRow = this.urlTable.getSelectedRow();
+
+            if (selectedRow < 0) {
                 return;
             }
 
@@ -124,9 +198,11 @@ public class UrlListForm {
 
             this.btnDelete.setEnabled(false);
 
-            dfTableModel.removeRow(this.urlTable.getSelectedRow());
+            int modelRow = this.urlTable.convertRowIndexToModel(selectedRow);
+            dfTableModel.removeRow(modelRow);
             this.xmlFileSave(dfTableModel);
 
+            this.rowSorter.setModel(dfTableModel);
             this.urlTable.clearSelection();
             this.txtTitle.requestFocus();
             this.clear();
@@ -153,18 +229,24 @@ public class UrlListForm {
             this.dialog.dispose();
         });
 
-        // URL Table
+        // URL Table mousePressed
         this.urlTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                 int sRow = urlTable.getSelectedRow();
 
-                String title = (String) model.getValueAt(sRow, 0);
-                String method = (String) model.getValueAt(sRow, 1);
-                String leftUrl = (String) model.getValueAt(sRow, 2);
-                String rightUrl = (String) model.getValueAt(sRow, 3);
-                String bodyData = (String) model.getValueAt(sRow, 4);
+                if(sRow < 0) {
+                    return;
+                }
+
+                int modelRow = urlTable.convertRowIndexToModel(sRow);
+
+                String title = (String) model.getValueAt(modelRow, 0);
+                String method = (String) model.getValueAt(modelRow, 1);
+                String leftUrl = (String) model.getValueAt(modelRow, 2);
+                String rightUrl = (String) model.getValueAt(modelRow, 3);
+                String bodyData = (String) model.getValueAt(modelRow, 4);
 
                 txtTitle.setText(title);
                 cbMethod.setSelectedItem(method);
@@ -179,15 +261,21 @@ public class UrlListForm {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN ||
-                        e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+                    e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
                     DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                     int sRow = urlTable.getSelectedRow();
 
-                    String title = (String) model.getValueAt(sRow, 0);
-                    String method = (String) model.getValueAt(sRow, 1);
-                    String leftUrl = (String) model.getValueAt(sRow, 2);
-                    String rightUrl = (String) model.getValueAt(sRow, 3);
-                    String bodyData = (String) model.getValueAt(sRow, 4);
+                    if(sRow < 0) {
+                        return;
+                    }
+
+                    int modelRow = urlTable.convertRowIndexToModel(sRow);
+
+                    String title = (String) model.getValueAt(modelRow, 0);
+                    String method = (String) model.getValueAt(modelRow, 1);
+                    String leftUrl = (String) model.getValueAt(modelRow, 2);
+                    String rightUrl = (String) model.getValueAt(modelRow, 3);
+                    String bodyData = (String) model.getValueAt(modelRow, 4);
 
                     txtTitle.setText(title);
                     cbMethod.setSelectedItem(method);
@@ -291,6 +379,7 @@ public class UrlListForm {
                 tableColumnModel.getColumn(4).setHeaderValue("Body");
 
                 this.columnResize();
+                this.rowSorter.setModel(model);
             }
         } catch (Exception ex) {
             StringWriter sw = new StringWriter();
