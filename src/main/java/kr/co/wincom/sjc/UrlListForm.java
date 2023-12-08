@@ -209,12 +209,11 @@ public class UrlListForm {
             public void mousePressed(MouseEvent e) {
                 DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                 int sRow = urlTable.getSelectedRow();
+                int modelRow = urlTable.convertRowIndexToModel(sRow);
 
-                if (sRow < 0) {
+                if (modelRow < 0) {
                     return;
                 }
-
-                int modelRow = urlTable.convertRowIndexToModel(sRow);
 
                 String title = (String) model.getValueAt(modelRow, 0);
                 String method = (String) model.getValueAt(modelRow, 1);
@@ -238,12 +237,11 @@ public class UrlListForm {
                         e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
                     DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                     int sRow = urlTable.getSelectedRow();
+                    int modelRow = urlTable.convertRowIndexToModel(sRow);
 
-                    if (sRow < 0) {
+                    if (modelRow < 0) {
                         return;
                     }
-
-                    int modelRow = urlTable.convertRowIndexToModel(sRow);
 
                     String title = (String) model.getValueAt(modelRow, 0);
                     String method = (String) model.getValueAt(modelRow, 1);
