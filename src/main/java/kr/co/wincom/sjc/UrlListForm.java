@@ -1,48 +1,21 @@
 package kr.co.wincom.sjc;
 
 import com.intellij.openapi.ui.Messages;
-import java.awt.BorderLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.DefaultPersistenceDelegate;
-import java.beans.Encoder;
-import java.beans.Statement;
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import kr.co.wincom.sjc.type.MethodType;
+import kr.co.wincom.sjc.util.CommonUtils;
+
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.*;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
-import kr.co.wincom.sjc.type.MethodType;
-import kr.co.wincom.sjc.util.CommonUtils;
 
 public class UrlListForm {
 
@@ -188,8 +161,10 @@ public class UrlListForm {
                 return;
             }
 
+            int modelRow = this.urlTable.convertRowIndexToModel(selectedRow);
+
             DefaultTableModel dfTableModel = (DefaultTableModel) this.urlTable.getModel();
-            String title = (String) dfTableModel.getValueAt(this.urlTable.getSelectedRow(), 0);
+            String title = (String) dfTableModel.getValueAt(modelRow, 0);
 
             int retVal = JOptionPane.showConfirmDialog(this.dialog, title + ", delete?");
             if (retVal != 0) { // 0=yes, 1=no, 2=cancel
@@ -198,7 +173,6 @@ public class UrlListForm {
 
             this.btnDelete.setEnabled(false);
 
-            int modelRow = this.urlTable.convertRowIndexToModel(selectedRow);
             dfTableModel.removeRow(modelRow);
             this.xmlFileSave(dfTableModel);
 
@@ -236,7 +210,7 @@ public class UrlListForm {
                 DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                 int sRow = urlTable.getSelectedRow();
 
-                if(sRow < 0) {
+                if (sRow < 0) {
                     return;
                 }
 
@@ -261,11 +235,11 @@ public class UrlListForm {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN ||
-                    e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
+                        e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
                     DefaultTableModel model = (DefaultTableModel) urlTable.getModel();
                     int sRow = urlTable.getSelectedRow();
 
-                    if(sRow < 0) {
+                    if (sRow < 0) {
                         return;
                     }
 
